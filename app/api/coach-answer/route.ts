@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { openai } from "@/lib/openai";
+import { getOpenAI } from "@/lib/openai";
 
 const ROLE_LABELS: Record<string, string> = {
   ai_pm: "AI Product Manager",
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const safeAnswer = typeof answer === "string" ? answer : "";
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.4,
       messages: [
