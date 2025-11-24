@@ -49,9 +49,10 @@ export async function POST(req: NextRequest) {
   const safeJobDescription = typeof jobDescription === "string" ? jobDescription : "";
   const safeQuestion = typeof question === "string" ? question : "";
   const safeAnswer = typeof answer === "string" ? answer : "";
+  const providedKey = req.headers.get("x-openai-api-key") ?? undefined;
 
   try {
-    const completion = await getOpenAI().chat.completions.create({
+    const completion = await getOpenAI(providedKey || undefined).chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.4,
       messages: [

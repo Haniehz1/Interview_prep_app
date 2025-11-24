@@ -1,15 +1,19 @@
 import OpenAI from "openai";
 
-let client: OpenAI | null = null;
+let cachedClient: OpenAI | null = null;
 
-export function getOpenAI() {
-  if (client) return client;
+export function getOpenAI(apiKey?: string) {
+  if (apiKey && typeof apiKey === "string" && apiKey.trim()) {
+    return new OpenAI({ apiKey: apiKey.trim() });
+  }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
+  if (cachedClient) return cachedClient;
+
+  const envKey = process.env.OPENAI_API_KEY;
+  if (!envKey) {
     throw new Error("Missing OPENAI_API_KEY environment variable");
   }
 
-  client = new OpenAI({ apiKey });
-  return client;
+  cachedClient = new OpenAI({ apiKey: envKey });
+  return cachedClient;
 }

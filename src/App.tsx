@@ -19,6 +19,7 @@ export interface SessionState {
   resume?: string;
   shortBlurb?: string;
   jobDescription?: string;
+  apiKey?: string;
   currentQuestion?: number;
   questions?: string[];
   answers?: Array<{
@@ -57,10 +58,14 @@ async function generateQuestionRequest(params: {
   resumeText: string;
   blurb: string;
   jobDescription: string;
+  apiKey: string;
 }): Promise<string> {
   const response = await fetch('/api/generate-question', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-openai-api-key': params.apiKey
+    },
     body: JSON.stringify(params)
   });
 
@@ -79,10 +84,14 @@ async function coachAnswerRequest(params: {
   jobDescription: string;
   question: string;
   answer: string;
+  apiKey: string;
 }): Promise<FeedbackData> {
   const response = await fetch('/api/coach-answer', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-openai-api-key': params.apiKey
+    },
     body: JSON.stringify(params)
   });
 
@@ -120,8 +129,8 @@ export default function App() {
 
   const handleStartInterview = async () => {
     const roleCode = getRoleCode(sessionState.role);
-    if (!roleCode || !sessionState.resume || !sessionState.jobDescription) {
-      alert('Please complete all required fields before starting');
+    if (!roleCode || !sessionState.resume || !sessionState.jobDescription || !sessionState.apiKey) {
+      alert('Please complete all required fields and provide your OpenAI API key before starting');
       return;
     }
 
@@ -134,7 +143,8 @@ export default function App() {
           role: roleCode,
           resumeText: sessionState.resume || '',
           blurb: sessionState.shortBlurb || '',
-          jobDescription: sessionState.jobDescription || ''
+          jobDescription: sessionState.jobDescription || '',
+          apiKey: sessionState.apiKey
         });
         questions.push(question);
       }
@@ -157,7 +167,7 @@ export default function App() {
     if (!sessionState.questions || sessionState.currentQuestion === undefined) return;
 
     const roleCode = getRoleCode(sessionState.role);
-    if (!roleCode || !sessionState.jobDescription) {
+    if (!roleCode || !sessionState.jobDescription || !sessionState.apiKey) {
       alert('Missing required context to coach your answer.');
       return;
     }
@@ -172,7 +182,8 @@ export default function App() {
         blurb: sessionState.shortBlurb || '',
         jobDescription: sessionState.jobDescription,
         question,
-        answer: answerText
+        answer: answerText,
+        apiKey: sessionState.apiKey
       });
 
       const newAnswers = [...(sessionState.answers || [])];
@@ -219,7 +230,7 @@ export default function App() {
 
     if (variation === 'regenerate') {
       const roleCode = getRoleCode(sessionState.role);
-      if (!roleCode || !sessionState.jobDescription) {
+      if (!roleCode || !sessionState.jobDescription || !sessionState.apiKey) {
         alert('Missing required context to coach your answer.');
         return;
       }
@@ -232,7 +243,8 @@ export default function App() {
           blurb: sessionState.shortBlurb || '',
           jobDescription: sessionState.jobDescription,
           question: sessionState.questions[currentQ],
-          answer: currentAnswer.text
+          answer: currentAnswer.text,
+          apiKey: sessionState.apiKey
         });
 
         const newAnswers = [...(sessionState.answers || [])];
@@ -290,6 +302,7 @@ export default function App() {
     sessionState.role &&
     sessionState.resume &&
     sessionState.jobDescription &&
+    sessionState.apiKey &&
     !sessionState.questions
   );
 

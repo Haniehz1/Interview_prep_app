@@ -117,6 +117,22 @@ export function LeftPanel({
 
         <div className="h-px bg-gray-200" />
 
+        {/* API Key for Testing */}
+        <section>
+          <h2 className="text-gray-900 mb-3">OpenAI API Key (for testing)</h2>
+          <p className="text-sm text-gray-600 mb-2">
+            Required for generating questions and feedback in this session. Stored locally in your browser only.
+          </p>
+          <input
+            type="password"
+            value={sessionState.apiKey || ''}
+            onChange={(e) => updateSessionState({ apiKey: e.target.value.trim() })}
+            placeholder="sk-..."
+            disabled={interviewStarted}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+          />
+        </section>
+
         {/* Job Description */}
         <section>
           <h2 className="text-gray-900 mb-3">Job Description</h2>
